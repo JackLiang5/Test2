@@ -1,0 +1,967 @@
+openapi: 3.0.1
+info:
+  title: Config Service Client
+  description: Config Service Client
+  termsOfService: https://azconfig.preprod.core.windows.net/
+  contact:
+    email: cosfe@microsoft.com
+  version: 1.0.0
+servers:
+  - url: https://{host}/gits/{mappingName}/repos
+    variables:
+      host:
+        default: azconfig.preprod.core.windows.net
+      mappingName:
+        default: AzureOne
+  - url: https://{host}/gits/{mappingName}/owner/{owner}/repos
+    variables:
+      host:
+        default: azconfig.preprod.core.windows.net
+      mappingName:
+        default: AzureOne
+      owner:
+        default: One
+tags:
+  - name: branch
+  - name: commit
+  - name: file
+  - name: pull request
+  - name: pull request reviewer
+  - name: repo
+paths:
+  /:
+    get:
+      tags:
+        - repo
+      operationId: ListRepos
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GitRepo'
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+  /{repo}:
+    get:
+      tags:
+      - repo
+      operationId: GetRepo
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitRepo'
+      security:
+      - BasicAuth: []
+      - BearerAuth: []
+    post:
+      tags:
+        - repo
+      operationId: CreateRepo
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/GitRepoCreate'
+        required: false
+      responses:
+        201:
+          description: Created
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+      x-codegen-request-body-name: repoCreate
+    delete:
+      tags:
+        - repo
+      operationId: DeleteRepo
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+  /{repo}/branches:
+    get:
+      tags:
+        - branch
+      operationId: ListBranches
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GitBranch'
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+    post:
+      tags:
+        - branch
+      operationId: CreateBranch
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/GitBranchCreate'
+        required: false
+      responses:
+        201:
+          description: OK
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+      x-codegen-request-body-name: repoCreate
+    delete:
+      tags:
+        - branch
+      operationId: DeleteBranch
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+  /{repo}/branches/{branch}:
+    get:
+      tags:
+        - branch
+      operationId: GetBranch
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: branch
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitBranch'
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+  /{repo}/commits:
+    get:
+      tags:
+        - commit
+      operationId: ListCommits
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: sha
+        in: query
+        schema:
+          type: string
+      - name: path
+        in: query
+        schema:
+          type: string
+      - name: since
+        in: query
+        schema:
+          type: string
+      - name: until
+        in: query
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GitCommit'
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+  /{repo}/commits/{commitSha}:
+    get:
+      tags:
+        - commit
+      operationId: GetCommit
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: commitSha
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitCommit'
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+  /{repo}/contents/{path}:
+    get:
+      tags:
+        - file
+      operationId: GetFile
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: path
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: ref
+        in: query
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitContent'
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+    put:
+      tags:
+        - file
+      operationId: PutFile
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: path
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: ref
+        in: query
+        schema:
+          type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/GitContentPut'
+        required: false
+      responses:
+        201:
+          description: OK
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+      x-codegen-request-body-name: contentPut
+    delete:
+      tags:
+        - file
+      operationId: DeleteFile
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: path
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: ref
+        in: query
+        schema:
+          type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/GitContentDelete'
+        required: false
+      responses:
+        200:
+          description: OK
+          content: {}
+        204:
+          description: Not Exist
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+      x-codegen-request-body-name: contentDelete
+  /{repo}/pulls:
+    get:
+      tags:
+        - pull request
+      operationId: ListPulls
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: state
+        in: query
+        schema:
+          type: string
+      - name: head
+        in: query
+        schema:
+          type: string
+      - name: base
+        in: query
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GitPullRequest'
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+    post:
+      tags:
+        - pull request
+      operationId: CreatePull
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/GitPullRequestCreate'
+        required: false
+      responses:
+        200:
+          description: OK
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+      x-codegen-request-body-name: pullCreate
+  /{repo}/pulls/{pullRequestId}:
+    get:
+      tags:
+        - pull request
+      operationId: GetPull
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pullRequestId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitPullRequest'
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+    patch:
+      tags:
+        - pull request
+      operationId: UpdatePull
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pullRequestId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/GitPullRequestUpdate'
+        required: false
+      responses:
+        200:
+          description: OK
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+      x-codegen-request-body-name: pullUpdate
+  /{repo}/pulls/{pullRequestId}/merge:
+    post:
+      tags:
+        - pull request
+      operationId: MergePull
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pullRequestId
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/GitPullRequestMerge'
+        required: false
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitPullRequestMergeResult'
+        202:
+          description: OK
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+      x-codegen-request-body-name: pullMerge
+  /{repo}/pulls/{pullRequestId}/reviewers:
+    get:
+      tags:
+        - pull request reviewer
+      operationId: ListReviewers
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pullRequestId
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GitUserReview'
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+  /{repo}/pulls/{pullRequestId}/reviewers/{userId}:
+    get:
+      tags:
+        - pull request reviewer
+      operationId: GetReviewer
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pullRequestId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GitUserReview'
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+    put:
+      tags:
+        - pull request reviewer
+      operationId: PutReviewer
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pullRequestId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/GitUserReviewPut'
+        required: false
+      responses:
+        200:
+          description: OK
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+      x-codegen-request-body-name: reviewerPut
+    delete:
+      tags:
+        - pull request reviewer
+      operationId: DeleteReviewer
+      parameters:
+      - name: repo
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: pullRequestId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content: {}
+      security:
+        - BasicAuth: []
+        - BearerAuth: []
+components:
+  schemas:
+    GitBranch:
+      type: object
+      properties:
+        Name:
+          type: string
+        Commit_sha:
+          type: string
+        Protected:
+          type: boolean
+        Allowed_merge_methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/GitMergeMethod'
+    GitBranchCreate:
+      type: object
+      properties:
+        Name:
+          type: string
+        Commit_sha:
+          type: string
+    GitBranchInfo:
+      type: object
+      properties:
+        Branch:
+          type: string
+        Commit_sha:
+          type: string
+        Repo:
+          $ref: '#/components/schemas/GitRepo'
+    GitCommit:
+      type: object
+      properties:
+        Sha:
+          type: string
+        Message:
+          type: string
+        Tree_sha:
+          type: string
+        Parents:
+          type: array
+          items:
+            type: string
+        Author:
+          $ref: '#/components/schemas/GitUserDate'
+        Committer:
+          $ref: '#/components/schemas/GitUserDate'
+        Pushed_by:
+          $ref: '#/components/schemas/GitUser'
+    GitContent:
+      type: object
+      properties:
+        Type:
+          $ref: '#/components/schemas/GitContentType'
+        Name:
+          type: string
+        Path:
+          type: string
+        Sha:
+          type: string
+        Entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/GitContent'
+        Size:
+          type: integer
+          format: int64
+        Encoding:
+          $ref: '#/components/schemas/GitContentEncoding'
+        Content:
+          type: string
+    GitContentChangeResult:
+      type: object
+      properties:
+        Content:
+          $ref: '#/components/schemas/GitContent'
+        Commit:
+          $ref: '#/components/schemas/GitCommit'
+    GitContentDelete:
+      type: object
+      properties:
+        Message:
+          type: string
+        Sha:
+          type: string
+    GitContentPut:
+      type: object
+      properties:
+        Message:
+          type: string
+        Sha:
+          type: string
+        Encoding:
+          $ref: '#/components/schemas/GitContentEncoding'
+        Content:
+          type: string
+    GitContentEncoding:
+      type: string
+      enum:
+      - Text
+      - Base64
+    GitContentType:
+      type: string
+      enum:
+      - Dir
+      - File
+      - Symlink
+      - Submodule
+    GitMergeableState:
+      type: string
+      enum:
+      - Unknown
+      - Draft
+      - Dirty
+      - Rejected
+      - Failure
+      - Blocked
+      - Behind
+      - Unstable
+      - Has_hooks
+      - Clean
+    GitMergeMethod:
+      type: string
+      enum:
+      - merge
+      - squash
+      - rebase
+      - rebase_merge
+    GitObjectType:
+      type: string
+      enum:
+      - bad
+      - commit
+      - tree
+      - blob
+      - tag
+      - ext2
+      - ofsDelta
+      - refDelta
+    GitOwner:
+      type: object
+      properties:
+        Id:
+          type: string
+        Name:
+          type: string
+        Type:
+          $ref: '#/components/schemas/GitOwnerType'
+    GitOwnerType:
+      type: string
+      enum:
+      - User
+      - Organization
+      - Project
+    GitPullRequest:
+      type: object
+      properties:
+        Number:
+          type: integer
+        State:
+          $ref: '#/components/schemas/GitPullRequestState'
+        Draft:
+          type: boolean
+        Title:
+          type: string
+        Body:
+          type: string
+        Head:
+          type: string
+        Base:
+          type: string
+        Head_info:
+          $ref: '#/components/schemas/GitBranchInfo'
+        Base_info:
+          $ref: '#/components/schemas/GitBranchInfo'
+        Created_at:
+          type: string
+          format: date-time
+        Closed_at:
+          type: string
+          format: date-time
+        Merged_at:
+          type: string
+          format: date-time
+        Merged:
+          type: boolean
+        Merge_commit_sha:
+          type: string
+        Merging_allowed:
+          type: boolean
+        Mergeable:
+          type: boolean
+        Mergeable_state:
+          $ref: '#/components/schemas/GitMergeableState'
+        Created_by:
+          $ref: '#/components/schemas/GitUser'
+        Merged_by:
+          $ref: '#/components/schemas/GitUser'
+    GitPullRequestCreate:
+      type: object
+      properties:
+        Title:
+          type: string
+        Body:
+          type: string
+        Head:
+          type: string
+        Base:
+          type: string
+    GitPullRequestMerge:
+      type: object
+      properties:
+        Message:
+          type: string
+        Commit_sha:
+          type: string
+        Merge_method:
+          $ref: '#/components/schemas/GitMergeMethod'
+    GitPullRequestMergeResult:
+      type: object
+      properties:
+        Merged:
+          type: boolean
+        Merge_commit_sha:
+          type: string
+    GitPullRequestState:
+      type: string
+      enum:
+      - open
+      - closed
+      - all
+    GitPullRequestUpdate:
+      type: object
+      properties:
+        State:
+          $ref: '#/components/schemas/GitPullRequestState'
+        Title:
+          type: string
+        Body:
+          type: string
+        Base:
+          type: string
+    GitRepo:
+      type: object
+      properties:
+        Id:
+          type: string
+        Name:
+          type: string
+        Fork:
+          type: boolean
+        Default_branch:
+          type: string
+        Owner:
+          $ref: '#/components/schemas/GitOwner'
+    GitRepoCreate:
+      type: object
+      properties:
+        Name:
+          type: string
+    GitRepoUpdate:
+      type: object
+      properties:
+        Default_branch:
+          type: string
+    GitTree:
+      type: object
+      properties:
+        Sha:
+          type: string
+        Tree:
+          type: array
+          items:
+            $ref: '#/components/schemas/GitTreeEntry'
+        Truncated:
+          type: boolean
+    GitTreeEntry:
+      type: object
+      properties:
+        Path:
+          type: string
+        Mode:
+          type: string
+        Type:
+          $ref: '#/components/schemas/GitObjectType'
+        Sha:
+          type: string
+        Size:
+          type: integer
+          format: int64
+    GitUser:
+      type: object
+      properties:
+        Id:
+          type: string
+        Login:
+          type: string
+    GitUserDate:
+      type: object
+      properties:
+        Name:
+          type: string
+        Email:
+          type: string
+        Date:
+          type: string
+          format: date-time
+    GitUserReview:
+      allOf:
+      - $ref: '#/components/schemas/GitUser'
+      - type: object
+        properties:
+          State:
+            $ref: '#/components/schemas/GitUserReviewState'
+    GitUserReviewPut:
+      type: object
+      properties:
+        State:
+          $ref: '#/components/schemas/GitUserReviewState'
+    GitUserReviewState:
+      type: integer
+      enum:
+      - -5
+      - 0
+      - 10
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
